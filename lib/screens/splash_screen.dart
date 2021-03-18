@@ -25,8 +25,12 @@ class SplashState extends State<SplashScreen> {
     return MaterialApp(
       home: Scaffold(
         body: Container(
+          color: Colors.red,
           child: Center(
-            child: Text('Search any keyword in wiki'),
+            child: Text(
+              'Wiki',
+              style: TextStyle(color: Colors.white, fontSize: 28.0),
+            ),
           ),
         ),
       ),
