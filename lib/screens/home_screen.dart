@@ -54,15 +54,15 @@ class HomeState extends State<HomeScreen> {
       final wikiObj = WikiPages.fromJson(jsonDecode(value.body.toString()));
       print("qry =>" + wikiObj.query.pages.length.toString());
       setState(() {
-        pages.clear();
         pages.addAll(wikiObj.query.pages);
         isLoading = false;
-        pageNum++;
+        //pageNum++;
       });
     });
   }
 
   onSearchTextChanged(String text) async {
+    pages.clear();
     fetchPages(1, text);
 
     setState(() {
