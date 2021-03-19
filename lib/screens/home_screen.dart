@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:wiki_search/model/post.dart';
-import 'package:http/http.dart' as http;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wiki_search/model/wiki_pages.dart';
 import 'package:wiki_search/screens/detail_screen.dart';
+import 'package:wiki_search/webservice/myConnectionStatus.dart';
 import 'package:wiki_search/webservice/webapi.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class HomeState extends State<HomeScreen> {
   bool isLoading = true;
   List<Pages> pages;
   List<Pages> searchPages;
-  String searchText = "Test";
+  String searchText = "India";
 
   int pageNum = 1;
   bool isPageLoading = false;
@@ -31,14 +31,26 @@ class HomeState extends State<HomeScreen> {
   void initState() {
     pages = new List<Pages>();
     searchPages = new List<Pages>();
-    //fetchModels();
 
-    fetchPages(pageNum, searchText);
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        pageNum = pageNum + 1;
+    MyConnectionStatus().check().then((intenet) async {
+      if (intenet != null && intenet) {
         fetchPages(pageNum, searchText);
+        _scrollController.addListener(() {
+          if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent) {
+            pageNum = pageNum + 1;
+            fetchPages(pageNum, searchText);
+          }
+        });
+      } else {
+        Fluttertoast.showToast(
+            msg: "Network not available",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     });
 
@@ -50,13 +62,10 @@ class HomeState extends State<HomeScreen> {
       isMainLoding = true;
     }
     WebApi().getList(page, text).then((value) {
-      print("res >" + value.toString());
       final wikiObj = WikiPages.fromJson(jsonDecode(value.body.toString()));
-      print("qry =>" + wikiObj.query.pages.length.toString());
       setState(() {
         pages.addAll(wikiObj.query.pages);
         isLoading = false;
-        //pageNum++;
       });
     });
   }
@@ -68,16 +77,6 @@ class HomeState extends State<HomeScreen> {
     setState(() {
       searchText = text;
     });
-    /*searchPages.clear();
-    if (text.isEmpty) {
-      setState(() {});
-      return;
-    }
-    pages.forEach((page) {
-      if (page.title.contains(text)) searchPages.add(page);
-    });
-
-    setState(() {});*/
   }
 
   @override
@@ -87,7 +86,6 @@ class HomeState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        //backgroundColor: Colors.orange,
         title: Text('Wiki Search'),
       ),
       body: Container(
@@ -120,8 +118,13 @@ class HomeState extends State<HomeScreen> {
             ),
           ),
           isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
+              ? Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                    ],
+                  ),
                 )
               : Expanded(
                   child: Container(
@@ -144,7 +147,6 @@ class HomeState extends State<HomeScreen> {
   Widget listView(
       BuildContext context, List<Pages> pages, ScrollController controllerr) {
     List<Pages> post = pages;
-    print("postList " + post.length.toString() + " list");
 
     return ListView.builder(
         controller: controllerr,
@@ -153,7 +155,7 @@ class HomeState extends State<HomeScreen> {
         itemBuilder: (BuildContext context, int index) {
           Pages model = post[index];
           String thumb = model.thumbnail == null
-              ? "http://via.placeholder.com/640x360" //https://picsum.photos/250?image=9
+              ? "http://via.placeholder.com/640x360"
               : model.thumbnail.source;
           String desc =
               model.terms == null ? "" : model.terms.description.first;
@@ -165,7 +167,6 @@ class HomeState extends State<HomeScreen> {
       BuildContext context, Pages pagesModel, String thumb, String desc) {
     return GestureDetector(
       onTap: () {
-        print('page id ' + pagesModel.pageid.toString());
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => DetailScreen(pagesModel)));
       },

@@ -25,7 +25,7 @@ class SplashState extends State<SplashScreen> {
     return MaterialApp(
       home: Scaffold(
         body: Container(
-          color: Colors.red,
+          color: Colors.grey,
           child: Center(
             child: Text(
               'Wiki',
