@@ -2,12 +2,15 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:wiki_search/model/wiki_pages.dart';
 import 'package:wiki_search/webservice/webapi.dart';
 
 class DetailScreen extends StatefulWidget {
   String title;
+  String pageId;
+  Pages pages;
 
-  DetailScreen(this.title, {Key key});
+  DetailScreen(this.pages, {Key key});
 
   @override
   State<StatefulWidget> createState() {
@@ -21,13 +24,17 @@ class DetailState extends State<DetailScreen> {
 
   @override
   void initState() {
-    print('title ' + widget.title);
-    WebApi().getDetail(widget.title.replaceAll(" ", "%20")).then((value) {
+    print('title ' + widget.pages.title + " " + widget.pages.pageid.toString());
+    WebApi()
+        .getDetailApi(widget.pages.title.replaceAll(" ", "%20"))
+        .then((value) {
       if (value != null) {
         //final resStr = value.body;
         var dict = jsonDecode(value.body);
         setState(() {
-          content = dict['parse']['text']['*'];
+          //content = dict['parse']['text']['*'];
+          content =
+              dict['query']['pages'][widget.pages.pageid.toString()]['extract'];
           isLoading = false;
         });
       }
@@ -41,21 +48,17 @@ class DetailState extends State<DetailScreen> {
       appBar: AppBar(
         //backgroundColor: Colors.orange,
         automaticallyImplyLeading: true,
-        title: Text(widget.title),
+        title: Text(widget.pages.title),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: isLoading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : Html(
-                    data: content,
-                  ),
-          ),
-        ],
-      ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Html(
+                data: content,
+              ),
+            ),
     );
   }
 }

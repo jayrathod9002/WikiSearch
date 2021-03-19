@@ -18,7 +18,7 @@ class HomeState extends State<HomeScreen> {
   bool isLoading = true;
   List<Pages> pages;
   List<Pages> searchPages;
-  String searchText = "";
+  String searchText = "Test";
 
   int pageNum = 1;
   bool isPageLoading = false;
@@ -165,10 +165,9 @@ class HomeState extends State<HomeScreen> {
       BuildContext context, Pages pagesModel, String thumb, String desc) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DetailScreen(pagesModel.title)));
+        print('page id ' + pagesModel.pageid.toString());
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => DetailScreen(pagesModel)));
       },
       child: Container(
         margin: EdgeInsets.only(top: 1, bottom: 0, left: 10, right: 10),

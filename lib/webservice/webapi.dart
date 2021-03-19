@@ -29,6 +29,19 @@ class WebApi {
     print(response.body);
     return response;
   }
+
+  Future<http.Response> getDetailApi(String title) async {
+    String mainurl = BASE_URL +
+        "?action=query&prop=extracts&format=json&exintro=&titles=" +
+        title;
+    print("Main Url => " + mainurl);
+    var response = await http.get(mainurl);
+    print(response.body);
+    return response;
+  }
+
+//https://en.wikipedia.org/w/api.php?action=query&prop=extracts&format=json&exintro=&titles=Sachin%20Tendulkar
+
 }
 
 /*
